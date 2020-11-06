@@ -5,7 +5,7 @@ import os
 
 class WafBrainInterface(LocalInterface):
     def __init__(self) -> None:
-        model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'waf-brain.h5')
+        model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '../models/waf-brain.h5')
         self.model = load_model(model_path)
 
     def get_score(self, payload):

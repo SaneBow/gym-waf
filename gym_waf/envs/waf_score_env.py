@@ -27,7 +27,7 @@ class WafScoreEnv(WafEnv):
         self.score_function = interface.get_score   # need to override
         self.score_threshold = score_threshold
 
-    def _step(self, action_index):
+    def step(self, action_index):
         self.turns += 1
         self._take_action(action_index)
 
@@ -41,15 +41,16 @@ class WafScoreEnv(WafEnv):
             self.observation_space = self.feature_extractor.extract(self.payload)
             if self.score < self.score_threshold:
                 # we win!
-                reward = self.score
+                reward = 1. / self.score
                 episode_over = True
+                print("win with payload: {}".format(self.payload))
                 
             elif self.turns >= self.maxturns:
                 # out of turns :(
                 reward = 0.0
                 episode_over = True
             else:
-                reward = self.score
+                reward = 1. / self.score
                 episode_over = False
 
         if episode_over:
@@ -64,7 +65,7 @@ class WafScoreEnv(WafEnv):
         self.history.append(action)
         self.payload = action(self.payload)
 
-    def _reset(self):
+    def reset(self):
         self.turns = 0
         self.payload = self.orig_payload
 
@@ -74,5 +75,5 @@ class WafScoreEnv(WafEnv):
 
         return np.asarray(self.observation_space)
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         pass

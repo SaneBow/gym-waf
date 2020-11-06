@@ -20,7 +20,7 @@ class WafLabelEnv(WafEnv):
         interface = LocalInterface()
         self.label_function = interface.get_label   # need to override
 
-    def _step(self, action_index):
+    def step(self, action_index):
         self.turns += 1
         self._take_action(action_index)
 
@@ -36,6 +36,7 @@ class WafLabelEnv(WafEnv):
                 # we win!
                 reward = 10.0 # !! a strong reward
                 episode_over = True
+                print("win with payload: {}".format(self.payload))
                 
             elif self.turns >= self.maxturns:
                 # out of turns :(
@@ -57,7 +58,7 @@ class WafLabelEnv(WafEnv):
         self.history.append(action)
         self.payload = action(self.payload)
 
-    def _reset(self):
+    def reset(self):
         self.turns = 0
         self.payload = self.orig_payload
 
@@ -67,5 +68,5 @@ class WafLabelEnv(WafEnv):
 
         return np.asarray(self.observation_space)
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         pass

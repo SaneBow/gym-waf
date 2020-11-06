@@ -22,9 +22,9 @@ class WafEnv(gym.Env):
         self.feature_extractor = SqlFeatureExtractor()
         self.history = []
 
-        self._reset()
+        self.reset()
 
-    def _step(self, action_index):
+    def step(self, action_index):
         raise NotImplementedError("_step not implemented")
 
     def _take_action(self, action_index):
@@ -34,7 +34,7 @@ class WafEnv(gym.Env):
         self.history.append(action)
         self.payload = action(self.payload)
 
-    def _reset(self):
+    def reset(self):
         self.turns = 0
         self.payload = self.orig_payload
 
@@ -44,5 +44,5 @@ class WafEnv(gym.Env):
 
         return np.asarray(self.observation_space)
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         pass
