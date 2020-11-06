@@ -1,4 +1,4 @@
-from .base_interface import LocalInterface
+from .base_interface import LocalInterface, ClassificationFailure
 from waf_brain.inferring import process_payload
 from keras.models import load_model
 import os
@@ -10,4 +10,6 @@ class WafBrainInterface(LocalInterface):
 
     def get_score(self, payload):
         result = process_payload(self.model, 'a', [payload], True)
+        if result == None:
+            raise ClassificationFailure('WAF-Brain classifier returns None')
         return result['score']

@@ -1,9 +1,5 @@
-import random
-import gym
-from gym import error, spaces, utils
-from gym.utils import seeding
+from termcolor import colored
 
-import numpy as np
 from gym_waf.envs.interfaces import LocalInterface, ClassificationFailure
 from gym_waf.envs.features import SqlFeatureExtractor
 from .waf_env import WafEnv
@@ -35,7 +31,8 @@ class WafScoreEnv(WafEnv):
         try:
             self.score = self.score_function(self.payload)
         except ClassificationFailure:
-            print("Failed to classify payload")
+            print("Failed to classify payload: ", colored(repr(self.payload), 'red'))
+            reward = 10.    # assume evasion due to implementation bug in classifier
             episode_over = True
         else:
             self.observation_space = self.feature_extractor.extract(self.payload)
@@ -43,7 +40,7 @@ class WafScoreEnv(WafEnv):
                 # we win!
                 reward = 1. / self.score
                 episode_over = True
-                print("win with payload: {}".format(self.payload))
+                print("WIN with payload:", colored(repr(self.payload), 'green'))
                 
             elif self.turns >= self.maxturns:
                 # out of turns :(
@@ -58,22 +55,3 @@ class WafScoreEnv(WafEnv):
 
         return self.observation_space, reward, episode_over, {}
 
-    def _take_action(self, action_index):
-        assert action_index < len(ACTION_LOOKUP)
-        action = ACTION_LOOKUP[action_index]
-        print(action.__name__)
-        self.history.append(action)
-        self.payload = action(self.payload)
-
-    def reset(self):
-        self.turns = 0
-        self.payload = self.orig_payload
-
-        print("reset payload: {}".format(self.payload))                
-
-        self.observation_space = self.feature_extractor.extract(self.payload)
-
-        return np.asarray(self.observation_space)
-
-    def render(self, mode='human', close=False):
-        pass

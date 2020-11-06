@@ -1,6 +1,7 @@
 """Strategies and fuzzer class module"""
 
 import random
+from functools import wraps
 import re
 from gym_waf.envs.controls.fuzz_utils import (
     replace_random,
@@ -13,7 +14,7 @@ from gym_waf.envs.controls.fuzz_utils import (
 )
 
 
-def reset_inline_comments(payload: str):
+def reset_inline_comments(payload: str, seed=None):
     """Remove randomly chosen multi-line comment content.
     Arguments:
         payload: query payload string
@@ -21,6 +22,8 @@ def reset_inline_comments(payload: str):
     Returns:
         str: payload modified
     """
+    random.seed(seed)
+
     positions = list(re.finditer(r"/\*[^(/\*|\*/)]*\*/", payload))
 
     if not positions:
@@ -37,7 +40,7 @@ def reset_inline_comments(payload: str):
     return new_payload
 
 
-def logical_invariant(payload):
+def logical_invariant(payload, seed=None):
     """logical_invariant
 
     Adds an invariant boolean condition to the payload
@@ -47,6 +50,7 @@ def logical_invariant(payload):
 
     :param payload:
     """
+    random.seed(seed)
 
     pos = re.search("(#|-- )", payload)
 
@@ -76,7 +80,8 @@ def logical_invariant(payload):
     return new_payload
 
 
-def change_tautologies(payload):
+def change_tautologies(payload, seed=None):
+    random.seed(seed)
 
     results = list(re.finditer(r'((?<=[^\'"\d\wx])\d+(?=[^\'"\d\wx]))=\1', payload))
     if not results:
@@ -94,7 +99,9 @@ def change_tautologies(payload):
     return new_payload
 
 
-def spaces_to_comments(payload):
+def spaces_to_comments(payload, seed=None):
+    random.seed(seed)
+
     # TODO: make it selectable (can be mixed with other strategies)
     symbols = {" ": ["/**/"], "/**/": [" "]}
 
@@ -114,7 +121,8 @@ def spaces_to_comments(payload):
     return replace_random(payload, candidate_symbol, candidate_replacement)
 
 
-def spaces_to_whitespaces_alternatives(payload):
+def spaces_to_whitespaces_alternatives(payload, seed=None):
+    random.seed(seed)
 
     symbols = {
         " ": ["\t", "\n", "\f", "\v", "\xa0"],
@@ -141,7 +149,9 @@ def spaces_to_whitespaces_alternatives(payload):
     return replace_random(payload, candidate_symbol, candidate_replacement)
 
 
-def random_case(payload):
+def random_case(payload, seed=None):
+    random.seed(seed)
+
     new_payload = []
 
     for c in payload:
@@ -152,7 +162,8 @@ def random_case(payload):
     return "".join(new_payload)
 
 
-def comment_rewriting(payload):
+def comment_rewriting(payload, seed=None):
+    random.seed(seed)
 
     p = random.random()
 
@@ -164,7 +175,8 @@ def comment_rewriting(payload):
         return payload
 
 
-def swap_int_repr(payload):
+def swap_int_repr(payload, seed=None):
+    random.seed(seed)
 
     candidates = list(re.finditer(r'(?<=[^\'"\d\wx])\d+(?=[^\'"\d\wx])', payload))
 
@@ -186,7 +198,8 @@ def swap_int_repr(payload):
     return payload[: candidate_pos[0]] + replacement + payload[candidate_pos[1] :]
 
 
-def swap_keywords(payload):
+def swap_keywords(payload, seed=None):
+    random.seed(seed)
 
     symbols = {
         # OR

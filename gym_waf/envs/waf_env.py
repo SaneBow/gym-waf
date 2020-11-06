@@ -1,16 +1,14 @@
-import random
 import gym
 from gym import error, spaces, utils
-from gym.utils import seeding
 
 import numpy as np
-from gym_waf.envs.interfaces import LocalInterface, ClassificationFailure
 from gym_waf.envs.features import SqlFeatureExtractor
 
 from gym_waf.envs.controls import sqlfuzzer as manipulate
 ACTION_LOOKUP = {i: act for i, act in enumerate(
     manipulate.strategies)}
 
+SEED = 0
 
 class WafEnv(gym.Env):
     metadata = {'render.modes': ['human']}
@@ -32,7 +30,7 @@ class WafEnv(gym.Env):
         action = ACTION_LOOKUP[action_index]
         print(action.__name__)
         self.history.append(action)
-        self.payload = action(self.payload)
+        self.payload = action(self.payload, seed=SEED)
 
     def reset(self):
         self.turns = 0
