@@ -1,0 +1,15 @@
+gym
+h5py
+ipython
+keras
+keras-rl2
+https://github.com/lief-project/LIEF/releases/download/0.7.0/linux_lief-0.7.0_py3.6.tar.gz
+numpy==1.19.3 #note that 1.19.4 has a unfixed but reported bug under Win 10 ver. 2004/20H2
+requests
+scikit-learn
+scipy
+sklearn
+tensorflow
+theano
+chainer
+chainerrl
