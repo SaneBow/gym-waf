@@ -17,10 +17,10 @@ import numpy as np
 import sqlparse
 import sqlparse.tokens as tks
 from collections import OrderedDict
+from . import allowed_tokens as alt
 
-
-class Tokenizer:
-    """Tokenizer class."""
+class TokenizerType:
+    """Tokenizer class. Use sqlparse library. Produce short feature vector (12) on token-type level. """
 
     def __init__(self):
         self._allowed_tokens = [
@@ -135,3 +135,66 @@ class Tokenizer:
             X = np.array(X)
         y = [label for _ in X]
         return X, y
+
+class TokenizerTK:
+    """ TokenizerTK. Use self-defined tokens. Produce long feature vector (702) on token level. """
+    def __init__(self):
+        pass
+
+    def produce_feat_vector(self, sql_query: str, normalize=False):
+        tokens = self._preprocess_input_query(sql_query)
+        token_counts = self._histogram_of_tokens(tokens)
+        feature_vector = np.array(token_counts)
+        if normalize:
+            norm = np.linalg.norm(feature_vector)
+            feature_vector = feature_vector / norm
+        return feature_vector 
+
+    def _preprocess_input_query(self, query):
+        query = query.strip().upper()
+        query = re.sub(r"( |\t|\n|\r|/\*\*/|`)+", " ", query)
+        query = alt.substitute_sysinfo(query, insert_space=True).strip()
+        query = alt.apply_regexp(query, insert_space=True).strip()
+        query = alt.substitute_punctation(query, insert_space=True).strip()
+        query = re.sub(" +", " ", query).strip()
+        query = alt.normalize_dots(query)
+        splitted_string = query.split(" ")
+        tokens = []
+        for t in splitted_string:
+            if t in alt.TOKENS:
+                tokens.append(t)
+            else:
+                if len(t) > 1:
+                    tokens.append("STR")
+                else:
+                    tokens.append("CHR")
+        if not tokens:
+            return None
+        return tokens
+
+    def _histogram_of_tokens(self, tokens):
+        total_length = len(alt.TOKENS)
+        hist = [0 for _ in range(total_length)]
+        for t in tokens:
+            hist[alt.TOKENS.index(t)] = tokens.count(t)
+        return hist
+
+
+class TokenizerChr:
+    """ TokenizerChr. Produce character histogram feature vector (256). """
+    def __init__(self):
+        pass
+
+    def produce_feat_vector(self, sql_query: str, normalize=False):
+        token_counts = self._histogram_of_chars(sql_query)
+        feature_vector = np.array(token_counts)
+        if normalize:
+            norm = np.linalg.norm(feature_vector)
+            feature_vector = feature_vector / norm
+        return feature_vector  
+
+    def _histogram_of_chars(self, s):
+        hist = [0 for _ in range(0xff)]
+        for c in s:
+            hist[ord(c)] = s.count(c)
+        return hist

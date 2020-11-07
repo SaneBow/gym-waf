@@ -1,6 +1,6 @@
 from gym.envs.registration import register
 
-MAXTURNS = 20
+MAXTURNS = 10
 
 register(
     id='waf-brain-v0',
