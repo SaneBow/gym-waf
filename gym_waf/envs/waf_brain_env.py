@@ -1,8 +1,11 @@
 from .waf_score_env import WafScoreEnv
 from .interfaces import WafBrainInterface
 
+
 class WafBrainEnv(WafScoreEnv):
-    def __init__(self, payload, score_threshold, maxturns=20) -> None:
-        super(WafBrainEnv, self).__init__(payload, score_threshold, maxturns=maxturns)
-        interface = WafBrainInterface()
-        self.score_function = interface.get_score
+    def __init__(self, payloads_file, score_threshold, maxturns=20) -> None:
+        super().__init__(payloads_file, score_threshold, maxturns=maxturns)
+        self.interface = WafBrainInterface()
+
+    def _get_score(self, payload):
+        return self.interface.get_score(payload)

@@ -19,6 +19,7 @@ import sqlparse.tokens as tks
 from collections import OrderedDict
 from . import allowed_tokens as alt
 
+
 class TokenizerType:
     """Tokenizer class. Use sqlparse library. Produce short feature vector (12) on token-type level. """
 
@@ -135,6 +136,7 @@ class TokenizerType:
             X = np.array(X)
         y = [label for _ in X]
         return X, y
+
 
 class TokenizerTK:
     """ TokenizerTK. Use self-defined tokens. Produce long feature vector (702) on token level. """

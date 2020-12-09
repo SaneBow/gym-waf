@@ -1,8 +1,6 @@
 import re
 import random
 import string
-from wafamole.utils.check import type_check
-
 
 def replace_nth(candidate, sub, wanted, n):
     """Replace the n-th occurrence of a portion of the candidate with wanted.
@@ -219,3 +217,12 @@ def num_contradiction():
     ]
 
     return random.choice(contradictions)
+
+
+def type_check(object_to_check, type_to_check, param_name):
+    if not isinstance(object_to_check, type_to_check):
+        raise TypeError(
+            "{} is not {} but {}".format(
+                param_name, type_to_check, type(object_to_check)
+            )
+        )

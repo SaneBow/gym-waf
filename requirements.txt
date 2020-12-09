@@ -1,7 +1,7 @@
 gym
 keras
 keras-rl2
-numpy
+numpy==1.18.5
 requests
 scikit-learn
 scipy
@@ -9,3 +9,6 @@ sklearn
 tensorflow
 chainer
 chainerrl
+libinjection-python
+waf-brain
+sqlparse

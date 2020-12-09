@@ -1,15 +1,17 @@
 from gym.envs.registration import register
+import os
 
 MAXTURNS = 10
+DATASET = os.path.join(os.path.dirname(__file__), 'data', 'sqli-1.csv')
 
 register(
-    id='waf-brain-v0',
+    id='WafBrain-v0',
     entry_point='gym_waf.envs:WafBrainEnv',
-    kwargs={'payload': '1 or 1=1 -- a', 'score_threshold': 0.2, 'maxturns': MAXTURNS}
+    kwargs={'payloads_file': DATASET, 'score_threshold': 0.2, 'maxturns': MAXTURNS}
 )
 
 register(
-    id='waf-libinjection-v0',
+    id='WafLibinjection-v0',
     entry_point='gym_waf.envs:LibinjectionEnv',
-    kwargs={'payload': '1 or 1=1 -- a', 'maxturns': MAXTURNS}
+    kwargs={'payloads_file': DATASET, 'maxturns': MAXTURNS}
 )

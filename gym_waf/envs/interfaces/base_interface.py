@@ -7,10 +7,10 @@ class LocalInterface(object):
         pass
     
     def get_score(self, payload):
-        raise NotImplementedError("get local score not implmented")
+        raise NotImplementedError("get local score not implemented")
 
     def get_label(self, payload):
-        raise NotImplementedError("get local label not implmented")
+        raise NotImplementedError("get local label not implemented")
 
 
 class RemoteInterface(object):

@@ -33,8 +33,8 @@ def generate_dense_model(input_shape, layers, nb_actions):
 
 
 def train_dqn_model(layers, rounds=1000, use_score=False):
-    ENV_NAME = 'waf-brain-v0' if use_score else 'waf-libinjection-v0'
-    env = gym.make(ENV_NAME)
+    env_name = 'WafBrain-v0' if use_score else 'WafLibinjection-v0'
+    env = gym.make(env_name)
     env.seed(123)
     nb_actions = env.action_space.n
     window_length = 1  # "experience" consists of where we were, where we are now
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     # with open('history_blackbox.pickle', 'wb') as f:
     #     pickle.dump(history_test1, f, pickle.HIGHEST_PROTOCOL)
 
-    agent2, model2, history_train2, history_test2 = train_dqn_model([256, 32], rounds=5000, use_score=True)  # allow agent to see scores
+    agent2, model2, history_train2, history_test2 = train_dqn_model([256, 32], rounds=5000, use_score=False)  # allow agent to see scores
     # model2.save('models/dqn_score.h5', overwrite=True)
     # with open('history_score.pickle', 'wb') as f:
     #     pickle.dump(history_test2, f, pickle.HIGHEST_PROTOCOL)
