@@ -124,13 +124,22 @@ def spaces_to_comments(payload, seed=None):
 def spaces_to_whitespaces_alternatives(payload, seed=None):
     rng = random.RandomState(seed)
 
+    # symbols = {
+    #     " ": ["\t", "\n", "\f", "\v", "\xa0"],
+    #     "\t": [" ", "\n", "\f", "\v", "\xa0"],
+    #     "\n": ["\t", " ", "\f", "\v", "\xa0"],
+    #     "\f": ["\t", "\n", " ", "\v", "\xa0"],
+    #     "\v": ["\t", "\n", "\f", " ", "\xa0"],
+    #     "\xa0": ["\t", "\n", "\f", "\v", " "],
+    # }
+
+    # \xa0 breaks waf-brain
     symbols = {
-        " ": ["\t", "\n", "\f", "\v", "\xa0"],
-        "\t": [" ", "\n", "\f", "\v", "\xa0"],
-        "\n": ["\t", " ", "\f", "\v", "\xa0"],
-        "\f": ["\t", "\n", " ", "\v", "\xa0"],
-        "\v": ["\t", "\n", "\f", " ", "\xa0"],
-        "\xa0": ["\t", "\n", "\f", "\v", " "],
+        " ": ["\t", "\n", "\f", "\v"],
+        "\t": [" ", "\n", "\f", "\v"],
+        "\n": ["\t", " ", "\f", "\v"],
+        "\f": ["\t", "\n", " ", "\v"],
+        "\v": ["\t", "\n", "\f", " "]
     }
 
     symbols_in_payload = filter_candidates(symbols, payload)
