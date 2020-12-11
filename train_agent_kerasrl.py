@@ -78,7 +78,7 @@ if __name__ == '__main__':
     # with open('history_blackbox.pickle', 'wb') as f:
     #     pickle.dump(history_test1, f, pickle.HIGHEST_PROTOCOL)
 
-    agent2, model2, history_train2, history_test2 = train_dqn_model([512, 256, 32], rounds=10000, use_score=True)  # allow agent to see scores
+    agent2, model2, history_train2, history_test2 = train_dqn_model([512, 256, 32], rounds=5000, use_score=True)  # allow agent to see scores
     model2.save(os.path.join(save_dir, 'dqn_score.h5'), overwrite=True)
     with open(os.path.join(save_dir, 'dqn_score_history.pickle'), 'wb') as f:
         pickle.dump(history_test2, f, pickle.HIGHEST_PROTOCOL)

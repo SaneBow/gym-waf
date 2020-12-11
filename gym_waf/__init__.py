@@ -1,7 +1,7 @@
 from gym.envs.registration import register
 import os
 
-MAXTURNS = 15
+MAXTURNS = 10
 DATASET = os.path.join(os.path.dirname(__file__), 'data', 'sqli-1k.csv')
 
 register(

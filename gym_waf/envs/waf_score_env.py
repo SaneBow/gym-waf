@@ -1,4 +1,5 @@
 from termcolor import colored
+import logging
 
 from gym_waf.envs.interfaces import ClassificationFailure
 from .waf_env import WafEnv
@@ -22,7 +23,7 @@ class WafScoreEnv(WafEnv):
         try:
             score, is_sqli = self._get_score(payload)
         except ClassificationFailure:
-            print("Failed to classify payload: ", colored(repr(self.payload), 'red'))
+            logging.warning("Failed to classify payload: {}".format(colored(repr(self.payload), 'red')))
             score = 0.01
             is_sqli = False
         self.score = score
@@ -36,21 +37,24 @@ class WafScoreEnv(WafEnv):
 
         self.observation = self.feature_extractor.extract(self.payload)
 
+        win = False
         # get reward
         if not self._check_sqli(self.payload):
             # we win!
             episode_over = True
-            # print("WIN with payload:", colored(repr(self.payload), 'green'))
+            win = True
+            logging.debug("WIN with payload: {}".format(colored(repr(self.payload), 'green')))
         elif self.turns >= self.maxturns:
             # out of turns :(
             episode_over = True
         else:
             episode_over = False
-        reward = 1. / self.score
+        reward = 1. / max(self.score, 0.01)
         reward = self._process_reward(reward)
 
-        # if episode_over:
-        #     print("episode is over: reward = {}!".format(reward))
+        if episode_over:
+            logging.debug("episode is over: reward = {}!".format(reward))
 
-        return self.observation, reward, episode_over, {}
+        return self.observation, reward, episode_over, \
+            {"win": win, "original": self.orig_payload, "payload": self.payload, "history": self.history}
 

@@ -1,4 +1,5 @@
 from termcolor import colored
+import logging
 
 from gym_waf.envs.interfaces import ClassificationFailure
 from .waf_env import WafEnv
@@ -21,7 +22,7 @@ class WafLabelEnv(WafEnv):
         try:
             label = self._get_label(payload)
         except ClassificationFailure:
-            print("Failed to classify payload: ", colored(repr(self.payload), 'red'))
+            logging.warning("Failed to classify payload: {}".format(colored(repr(self.payload), 'red')))
             label = 0   # assume evasion due to implementation bug in classifier
         self.label = label
         return label
@@ -34,11 +35,13 @@ class WafLabelEnv(WafEnv):
 
         self.observation = self.feature_extractor.extract(self.payload)
 
+        win = False
         # get reward
         if not self._check_sqli(self.payload):
             reward = 10.
             episode_over = True
-            # print("WIN with payload:", colored(repr(self.payload), 'green'))
+            win = True
+            logging.debug("WIN with payload: {}".format(colored(repr(self.payload), 'green')))
         elif self.turns >= self.maxturns:
             # out of turns :(
             reward = 0.0
@@ -48,8 +51,9 @@ class WafLabelEnv(WafEnv):
             episode_over = False
         reward = self._process_reward(reward)
 
-        # if episode_over:
-        #     print("episode is over: reward = {}!".format(reward))
+        if episode_over:
+            logging.debug("episode is over: reward = {}!".format(reward))
 
-        return self.observation, reward, episode_over, {}
+        return self.observation, reward, episode_over, \
+            {"win": win, "original": self.orig_payload, "payload": self.payload, "history": self.history}
 

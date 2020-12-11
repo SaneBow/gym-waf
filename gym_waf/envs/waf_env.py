@@ -1,6 +1,7 @@
 import numpy as np
 import gym
 import random
+import logging
 from gym_waf.envs.features import SqlFeatureExtractor
 
 from gym_waf.envs.controls import sqlfuzzer as manipulate
@@ -41,7 +42,7 @@ class WafEnv(gym.Env):
             with open(filepath, 'r') as f:
                 self.payload_list = f.read().splitlines()
         except OSError as e:
-            print("failed to load dataset from {}".format(filepath))
+            logging.error("failed to load dataset from {}".format(filepath))
             raise
 
     def step(self, action_index):
@@ -53,7 +54,7 @@ class WafEnv(gym.Env):
     def _take_action(self, action_index):
         assert action_index < len(ACTION_LOOKUP)
         action = ACTION_LOOKUP[action_index]
-        # print(action.__name__)
+        logging.debug(action.__name__)
         self.history.append(action)
         self.payload = action(self.payload, seed=SEED)
 

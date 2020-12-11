@@ -1,9 +1,7 @@
 gym
-keras
-keras-rl2
-scikit-learn
-scipy
-sklearn
+tensorflow==1.15
+keras==2.3.1
+keras-rl
 libinjection-python
 waf-brain
 sqlparse

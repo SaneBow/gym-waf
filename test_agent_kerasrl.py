@@ -1,73 +1,72 @@
 import numpy as np
-from collections import defaultdict
 import gym
-np.random.seed(123) # set a random seed when setting up the gym environment (train_test_split)
 import gym_waf
+import os
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 from keras.models import load_model
 
-ACTION_LOOKUP = {i: act for i, act in enumerate(manipulate.ACTION_TABLE.keys())}
 
-def evaluate( action_function ):
-    success=[]
-    misclassified = []
-    for sha256 in sha256_holdout:
-        success_dict = defaultdict(list)
-        bytez = interface.fetch_file(sha256)
-        label = interface.get_label_local(bytez)
-        if label == 0.0:
-            misclassified.append(sha256)
-            continue # already misclassified, move along
-        for _ in range(MAXTURNS):
-            action = action_function( bytez )
-            print(action)
-            success_dict[sha256].append(action)
-            bytez = manipulate.modify_without_breaking( bytez, [action] )
-            new_label = interface.get_label_local( bytez )   # test against local classifier
-            if new_label == 0.0:
-                success.append(success_dict)
+def evaluate(policy, env, iterations=100):
+    success = []
+    failed = []
+    for i in range(iterations):
+        logging.info("Evaluate: {}/{}".format(i+1, iterations))
+        env.seed(np.random.randint(13337))
+        obs = env.reset()
+        for _ in range(env.maxturns):
+            act = policy(obs)
+            obs, reward, over, info = env.step(act)
+            if over:
                 break
-    return success, misclassified # evasion accuracy is len(success) / len(sha256_holdout)
+        if info["win"]:
+            success.append(info["original"])
+        else:
+            failed.append(info["original"])
+    return success, failed # evasion accuracy is len(success) / len(sha256_holdout)
+
+
+def gen_policy_func(model):
+    def f(obs):
+        # first, get features from bytez
+        q_values = model.predict(obs)[0]
+        act = boltzmann_action(q_values) # alternative: best_action
+        return act
+    return f
+
+
+# option 1: Boltzmann sampling from Q-function network output
+softmax = lambda x: np.exp(x) / np.sum(np.exp(x))
+boltzmann_action = lambda x: np.argmax(np.random.multinomial(1, softmax(x).flatten()))
+# option 2: maximize the Q value, ignoring stochastic action space
+best_action = lambda x: np.argmax(x)
 
 
 if __name__ == '__main__':
+    env_name = 'WafBrain-v0'
+    env = gym.make(env_name)
+
+    eval_iters = 100
+
     # baseline: choose actions at random
-    random_action = lambda bytez: np.random.choice( list(manipulate.ACTION_TABLE.keys()) )
-    random_success, misclassified = evaluate( random_action )
-    total = len(sha256_holdout) - len(misclassified) # don't count misclassified towards success
+    random_policy = lambda obs: env.action_space.sample()
+    random_success, _ = evaluate(random_policy, env)
 
-    # option 1: Boltzmann sampling from Q-function network output
-    softmax = lambda x : np.exp( x ) / np.sum( np.exp( x ))
-    boltzmann_action = lambda x : np.argmax( np.random.multinomial( 1, softmax(x).flatten())) 
-    # option 2: maximize the Q value, ignoring stochastic action space
-    best_action = lambda x : np.argmax( x )
+    save_dir = 'trained_model'
 
-    fe = pefeatures.PEFeatureExtractor()
-
-    def model_policy(model):
-        shp = (1,) + tuple(model.input_shape[1:])
-        def f(bytez):
-            # first, get features from bytez
-            feats = fe.extract( bytez )
-            q_values = model.predict(feats.reshape(shp))[0]
-            action_index = boltzmann_action( q_values ) # alternative: best_action
-            return ACTION_LOOKUP[ action_index ]
-        return f
-
-    # compare to keras models with windowlength=1
-    dqn = load_model('models/dqn.h5')
-    dqn_success, _ = evaluate( model_policy(dqn) )
-
-    dqn_score = load_model('models/dqn_score.h5')
-    dqn_score_success, _ = evaluate( model_policy(dqn_score) )
+    # dqn = load_model(os.path.join(save_dir, 'dqn.h5'))
+    # dqn_success, _ = evaluate(gen_policy_func(dqn), env)
+    #
+    # dqn_score = load_model(os.path.join(save_dir, 'dqn_score.h5'))
+    # dqn_score_success, _ = evaluate(gen_policy_func(dqn_score), env)
 
     # let's compare scores
-    with open("log_test_all.txt", 'a') as logfile:
-        logfile.write("Success rate (random chance): {}\n".format( len(random_success) /  total ))
-        logfile.write("Success rate (dqn): {}\n".format( len(dqn_success) / total ) )
-        logfile.write("Success rate (dqn): {}\n".format( len(dqn_score_success) / total ) )          
-    
-    print("Success rate of random chance: {}\n".format( len(random_success) / total ))
-    print("Success rate (dqn): {}\n".format( len(dqn_success) / total ) )
-    print("Success rate (dqn): {}\n".format( len(dqn_score_success) / total ) )          
-    
+    # with open("log_test_all.txt", 'a') as logfile:
+    #     logfile.write("Success rate (random chance): {}\n".format(len(random_success) / eval_iters))
+    #     logfile.write("Success rate (dqn): {}\n".format(len(dqn_success) / eval_iters))
+    #     logfile.write("Success rate (dqn): {}\n".format(len(dqn_score_success) / eval_iters))
+
+    print("Success rate of random chance: {}\n".format(len(random_success) / eval_iters))
+    # print("Success rate (dqn): {}\n".format(len(dqn_success) / eval_iters))
+    # print("Success rate (dqn): {}\n".format(len(dqn_score_success) / eval_iters))
