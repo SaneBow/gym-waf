@@ -155,7 +155,7 @@ def random_case(payload, seed=None):
     new_payload = []
 
     for c in payload:
-        if rng.random() > 0.5:
+        if rng.rand() > 0.5:
             c = c.swapcase()
         new_payload.append(c)
 
@@ -165,7 +165,7 @@ def random_case(payload, seed=None):
 def comment_rewriting(payload, seed=None):
     rng = random.RandomState(seed)
 
-    p = rng.random()
+    p = rng.rand()
 
     if p < 0.5 and ("#" in payload or "-- " in payload):
         return payload + random_string(2)
