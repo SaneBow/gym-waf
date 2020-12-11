@@ -1,6 +1,6 @@
 """Strategies and fuzzer class module"""
 
-import random
+from numpy import random
 from functools import wraps
 import re
 from gym_waf.envs.controls.fuzz_utils import (
@@ -22,18 +22,18 @@ def reset_inline_comments(payload: str, seed=None):
     Returns:
         str: payload modified
     """
-    random.seed(seed)
+    rng = random.RandomState(seed)
 
     positions = list(re.finditer(r"/\*[^(/\*|\*/)]*\*/", payload))
 
     if not positions:
         return payload
 
-    pos = random.choice(positions).span()
+    pos = rng.choice(positions).span()
 
     replacements = ["/**/"]
 
-    replacement = random.choice(replacements)
+    replacement = rng.choice(replacements)
 
     new_payload = payload[: pos[0]] + replacement + payload[pos[1] :]
 
@@ -50,7 +50,7 @@ def logical_invariant(payload, seed=None):
 
     :param payload:
     """
-    random.seed(seed)
+    rng = random.RandomState(seed)
 
     pos = re.search("(#|-- )", payload)
 
@@ -60,7 +60,7 @@ def logical_invariant(payload, seed=None):
 
     pos = pos.start()
 
-    replacement = random.choice(
+    replacement = rng.choice(
         [
             # AND True
             " AND 1",
@@ -81,16 +81,16 @@ def logical_invariant(payload, seed=None):
 
 
 def change_tautologies(payload, seed=None):
-    random.seed(seed)
+    rng = random.RandomState(seed)
 
     results = list(re.finditer(r'((?<=[^\'"\d\wx])\d+(?=[^\'"\d\wx]))=\1', payload))
     if not results:
         return payload
-    candidate = random.choice(results)
+    candidate = rng.choice(results)
 
     replacements = [num_tautology(), string_tautology()]
 
-    replacement = random.choice(replacements)
+    replacement = rng.choice(replacements)
 
     new_payload = (
         payload[: candidate.span()[0]] + replacement + payload[candidate.span()[1] :]
@@ -100,7 +100,7 @@ def change_tautologies(payload, seed=None):
 
 
 def spaces_to_comments(payload, seed=None):
-    random.seed(seed)
+    rng = random.RandomState(seed)
 
     # TODO: make it selectable (can be mixed with other strategies)
     symbols = {" ": ["/**/"], "/**/": [" "]}
@@ -111,18 +111,18 @@ def spaces_to_comments(payload, seed=None):
         return payload
 
     # Randomly choose symbol
-    candidate_symbol = random.choice(symbols_in_payload)
+    candidate_symbol = rng.choice(symbols_in_payload)
     # Check for possible replacements
     replacements = symbols[candidate_symbol]
     # Choose one replacement randomly
-    candidate_replacement = random.choice(replacements)
+    candidate_replacement = rng.choice(replacements)
 
     # Apply mutation at one random occurrence in the payload
     return replace_random(payload, candidate_symbol, candidate_replacement)
 
 
 def spaces_to_whitespaces_alternatives(payload, seed=None):
-    random.seed(seed)
+    rng = random.RandomState(seed)
 
     symbols = {
         " ": ["\t", "\n", "\f", "\v", "\xa0"],
@@ -139,23 +139,23 @@ def spaces_to_whitespaces_alternatives(payload, seed=None):
         return payload
 
     # Randomly choose symbol
-    candidate_symbol = random.choice(symbols_in_payload)
+    candidate_symbol = rng.choice(symbols_in_payload)
     # Check for possible replacements
     replacements = symbols[candidate_symbol]
     # Choose one replacement randomly
-    candidate_replacement = random.choice(replacements)
+    candidate_replacement = rng.choice(replacements)
 
     # Apply mutation at one random occurrence in the payload
     return replace_random(payload, candidate_symbol, candidate_replacement)
 
 
 def random_case(payload, seed=None):
-    random.seed(seed)
+    rng = random.RandomState(seed)
 
     new_payload = []
 
     for c in payload:
-        if random.random() > 0.5:
+        if rng.random() > 0.5:
             c = c.swapcase()
         new_payload.append(c)
 
@@ -163,9 +163,9 @@ def random_case(payload, seed=None):
 
 
 def comment_rewriting(payload, seed=None):
-    random.seed(seed)
+    rng = random.RandomState(seed)
 
-    p = random.random()
+    p = rng.random()
 
     if p < 0.5 and ("#" in payload or "-- " in payload):
         return payload + random_string(2)
@@ -176,14 +176,14 @@ def comment_rewriting(payload, seed=None):
 
 
 def swap_int_repr(payload, seed=None):
-    random.seed(seed)
+    rng = random.RandomState(seed)
 
     candidates = list(re.finditer(r'(?<=[^\'"\d\wx])\d+(?=[^\'"\d\wx])', payload))
 
     if not candidates:
         return payload
 
-    candidate_pos = random.choice(candidates).span()
+    candidate_pos = rng.choice(candidates).span()
 
     candidate = payload[candidate_pos[0] : candidate_pos[1]]
 
@@ -193,13 +193,13 @@ def swap_int_repr(payload, seed=None):
         # "({})".format(candidate),
     ]
 
-    replacement = random.choice(replacements)
+    replacement = rng.choice(replacements)
 
     return payload[: candidate_pos[0]] + replacement + payload[candidate_pos[1] :]
 
 
 def swap_keywords(payload, seed=None):
-    random.seed(seed)
+    rng = random.RandomState(seed)
 
     symbols = {
         # OR
@@ -226,11 +226,11 @@ def swap_keywords(payload, seed=None):
         return payload
 
     # Randomly choose symbol
-    candidate_symbol = random.choice(symbols_in_payload)
+    candidate_symbol = rng.choice(symbols_in_payload)
     # Check for possible replacements
     replacements = symbols[candidate_symbol]
     # Choose one replacement randomly
-    candidate_replacement = random.choice(replacements)
+    candidate_replacement = rng.choice(replacements)
 
     # Apply mutation at one random occurrence in the payload
     return replace_random(payload, candidate_symbol, candidate_replacement)

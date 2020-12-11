@@ -65,7 +65,7 @@ class WafScoreEnv(WafEnv):
             step_reward = self._process_reward(new_reward)
 
         if episode_over:
-            logging.debug("episode is over: reward = {}!".format(self.reward))
+            logging.debug("episode is over: reward = {}!".format(step_reward))
 
         return self.observation, step_reward, episode_over, \
             {"win": win, "original": self.orig_payload, "payload": self.payload, "history": self.history}
