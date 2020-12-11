@@ -1,13 +1,17 @@
+import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+
 import gym_waf, gym
 import utils
 import os
 import numpy as np
+import argparse
 
 import matplotlib.pyplot as plt
 from stable_baselines.common.policies import MlpPolicy, ActorCriticPolicy, MlpLstmPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
 from stable_baselines.bench import Monitor
-from stable_baselines.common import make_vec_env, set_global_seeds
+from stable_baselines.common import set_global_seeds
 from stable_baselines import PPO2
 from stable_baselines.common.callbacks import BaseCallback
 from stable_baselines import results_plotter
@@ -82,8 +86,15 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
 
 
 if __name__ == '__main__':
-    env_id = "WafBrain-diff-v0"
-    num_cpu = 4  # Number of processes to use
+    parser = argparse.ArgumentParser(description='PPO2 trainer for gym-waf.')
+    parser.add_argument('env_id', metavar='ENV', type=str,
+                        help='env id (WafBrain-diff-v0, WafLibinjection-v0')
+    parser.add_argument('-n', dest='num_cpu', default=4,
+                        help='number of parallel processes (default 4)')
+    args = parser.parse_args()
+
+    env_id = args.env_id
+    num_cpu = args.num_cpu  # Number of processes to use
 
     log_dir = utils.prepare_logdir()
 
