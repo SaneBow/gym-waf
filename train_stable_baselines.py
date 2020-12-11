@@ -91,10 +91,13 @@ if __name__ == '__main__':
                         help='env id (WafBrain-diff-v0, WafLibinjection-v0')
     parser.add_argument('-n', dest='num_cpu', default=4,
                         help='number of parallel processes (default 4)')
+    parser.add_argument('-t', dest='time_steps', default=1e4,
+                        help='max training time steps (default 1e4)')
     args = parser.parse_args()
 
     env_id = args.env_id
     num_cpu = args.num_cpu  # Number of processes to use
+    time_steps = args.time_steps
 
     log_dir = utils.prepare_logdir()
 
@@ -102,9 +105,8 @@ if __name__ == '__main__':
 
     model = PPO2(MlpLstmPolicy, env, verbose=1)
     # Create the callback: check every 1000 steps
-    callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir, verbose=1)
+    callback = SaveOnBestTrainingRewardCallback(check_freq=1000, log_dir=log_dir, verbose=1)
     # Train the agent
-    time_steps = 1e3
     model.learn(total_timesteps=int(time_steps), callback=callback)
 
     results_plotter.plot_results([log_dir], time_steps, results_plotter.X_TIMESTEPS, "PPO2 WAF-Brain")
