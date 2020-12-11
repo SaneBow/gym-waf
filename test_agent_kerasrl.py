@@ -67,6 +67,6 @@ if __name__ == '__main__':
     #     logfile.write("Success rate (dqn): {}\n".format(len(dqn_success) / eval_iters))
     #     logfile.write("Success rate (dqn): {}\n".format(len(dqn_score_success) / eval_iters))
 
-    print("Success rate of random chance: {}\n".format(len(random_success) / eval_iters))
+    print("Success rate of random policy: {}\n".format(len(random_success) / eval_iters))
     # print("Success rate (dqn): {}\n".format(len(dqn_success) / eval_iters))
     # print("Success rate (dqn): {}\n".format(len(dqn_score_success) / eval_iters))

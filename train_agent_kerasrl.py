@@ -3,7 +3,7 @@ import numpy as np
 import gym
 np.random.seed(123) # set a random seed when setting up the gym environment (train_test_split)
 import gym_waf
-import os
+import utils
 
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten, ELU, Dropout, BatchNormalization
@@ -70,15 +70,8 @@ def train_dqn_model(layers, rounds=1000, use_score=False):
 
 
 if __name__ == '__main__':
-    save_dir = 'trained_model'
-    if not os.path.exists(save_dir):
-        os.mkdir(save_dir)
-    # agent1, model1, history_train1, history_test1 = train_dqn_model([1024, 256, 32], rounds=500, use_score=False)  # black blox
-    # model1.save('trained_model/dqn.h5', overwrite=True)
-    # with open('history_blackbox.pickle', 'wb') as f:
-    #     pickle.dump(history_test1, f, pickle.HIGHEST_PROTOCOL)
+    # agent1, model1, history_train1, history_test1 = train_dqn_model([1024, 256, 32], rounds=500, use_score=False)
+    # utils.save_model('dqn_libinjection', model1, history_test1)
 
-    agent2, model2, history_train2, history_test2 = train_dqn_model([512, 256, 32], rounds=5000, use_score=True)  # allow agent to see scores
-    model2.save(os.path.join(save_dir, 'dqn_score.h5'), overwrite=True)
-    with open(os.path.join(save_dir, 'dqn_score_history.pickle'), 'wb') as f:
-        pickle.dump(history_test2, f, pickle.HIGHEST_PROTOCOL)
+    agent2, model2, history_train2, history_test2 = train_dqn_model([512, 256, 32], rounds=5000, use_score=True)
+    utils.save_model('dqn_wafbrain', model2, history_test2)
