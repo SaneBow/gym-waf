@@ -106,3 +106,4 @@ gym_malware/envs/utils/samples_all/
 # model outputs
 *.h5f
 
+tmp_log/

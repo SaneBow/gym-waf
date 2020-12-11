@@ -1,8 +1,10 @@
 import gym_waf, gym
 import utils
+import os
 
 from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
+from stable_baselines.bench import Monitor
 from stable_baselines.common import make_vec_env, set_global_seeds
 from stable_baselines import PPO2
 
@@ -16,10 +18,13 @@ def make_env(env_id, rank, seed=0):
     :param seed: (int) the inital seed for RNG
     :param rank: (int) index of the subprocess
     """
+    log_dir = "tmp_log/"
+    os.makedirs(log_dir, exist_ok=True)
+
     def _init():
         env = gym.make(env_id)
         env.seed(seed + rank)
-        return env
+        return Monitor(env, log_dir)
     set_global_seeds(seed)
     return _init
 
