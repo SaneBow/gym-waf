@@ -14,7 +14,7 @@ SEED = 0
 class WafEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, payloads_file, maxturns=20, turn_penalty=0.2):
+    def __init__(self, payloads_file, maxturns=20, turn_penalty=0.1):
         """
         Base class for WAF env
         :param payloads: a list of payload strings

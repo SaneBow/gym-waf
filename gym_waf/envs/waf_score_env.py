@@ -12,9 +12,10 @@ ACTION_LOOKUP = {i: act for i, act in enumerate(
 class WafScoreEnv(WafEnv):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, payloads_file, maxturns, score_threshold):
+        super().__init__(payloads_file, maxturns, score_threshold)
         self.score = None
+        self.score_threshold = score_threshold
 
     def _get_score(self, payload):
         raise NotImplementedError("_get_score not implemented")
@@ -49,7 +50,7 @@ class WafScoreEnv(WafEnv):
             episode_over = True
         else:
             episode_over = False
-        reward = 1. / max(self.score, 0.01)
+        reward = self.score_threshold * 10. / max(self.score, self.score_threshold)
         reward = self._process_reward(reward)
 
         if episode_over:
