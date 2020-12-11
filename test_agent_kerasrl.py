@@ -1,9 +1,8 @@
 import numpy as np
-from gym_malware.envs.utils import interface, pefeatures
-from gym_malware.envs.controls import manipulate2 as manipulate
-
-from gym_malware import sha256_train, sha256_holdout, MAXTURNS
 from collections import defaultdict
+import gym
+np.random.seed(123) # set a random seed when setting up the gym environment (train_test_split)
+import gym_waf
 
 from keras.models import load_model
 
@@ -44,6 +43,7 @@ if __name__ == '__main__':
     best_action = lambda x : np.argmax( x )
 
     fe = pefeatures.PEFeatureExtractor()
+
     def model_policy(model):
         shp = (1,) + tuple(model.input_shape[1:])
         def f(bytez):

@@ -38,7 +38,7 @@ class WafLabelEnv(WafEnv):
         if not self._check_sqli(self.payload):
             reward = 10.
             episode_over = True
-            print("WIN with payload:", colored(repr(self.payload), 'green'))
+            # print("WIN with payload:", colored(repr(self.payload), 'green'))
         elif self.turns >= self.maxturns:
             # out of turns :(
             reward = 0.0
@@ -48,8 +48,8 @@ class WafLabelEnv(WafEnv):
             episode_over = False
         reward = self._process_reward(reward)
 
-        if episode_over:
-            print("episode is over: reward = {}!".format(reward))
+        # if episode_over:
+        #     print("episode is over: reward = {}!".format(reward))
 
         return self.observation, reward, episode_over, {}
 

@@ -13,7 +13,7 @@ SEED = 0
 class WafEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, payloads_file, maxturns=20, turn_penalty=0.1):
+    def __init__(self, payloads_file, maxturns=20, turn_penalty=0.2):
         """
         Base class for WAF env
         :param payloads: a list of payload strings
@@ -53,7 +53,7 @@ class WafEnv(gym.Env):
     def _take_action(self, action_index):
         assert action_index < len(ACTION_LOOKUP)
         action = ACTION_LOOKUP[action_index]
-        print(action.__name__)
+        # print(action.__name__)
         self.history.append(action)
         self.payload = action(self.payload, seed=SEED)
 
@@ -71,7 +71,7 @@ class WafEnv(gym.Env):
                 self.orig_payload = self.payload = payload
                 break
 
-        print("reset payload: {}".format(self.payload))                
+        # print("reset payload: {}".format(self.payload))
 
         self.observation = self.feature_extractor.extract(self.payload)
 

@@ -11,9 +11,8 @@ ACTION_LOOKUP = {i: act for i, act in enumerate(
 class WafScoreEnv(WafEnv):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, score_threshold=0.1, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.score_threshold = score_threshold
         self.score = None
 
     def _get_score(self, payload):
@@ -21,15 +20,13 @@ class WafScoreEnv(WafEnv):
 
     def _check_sqli(self, payload):
         try:
-            score = self._get_score(payload)
+            score, is_sqli = self._get_score(payload)
         except ClassificationFailure:
             print("Failed to classify payload: ", colored(repr(self.payload), 'red'))
             score = 0.01
+            is_sqli = False
         self.score = score
-        if score < self.score_threshold:
-            return False
-        else:
-            return True
+        return is_sqli
 
     def step(self, action_index):
         assert self.orig_payload is not None, "please reset() before step()"
@@ -42,20 +39,18 @@ class WafScoreEnv(WafEnv):
         # get reward
         if not self._check_sqli(self.payload):
             # we win!
-            reward = 1. / self.score
             episode_over = True
-            print("WIN with payload:", colored(repr(self.payload), 'green'))
+            # print("WIN with payload:", colored(repr(self.payload), 'green'))
         elif self.turns >= self.maxturns:
             # out of turns :(
-            reward = 0.0
             episode_over = True
         else:
-            reward = 1. / self.score
             episode_over = False
+        reward = 1. / self.score
         reward = self._process_reward(reward)
 
-        if episode_over:
-            print("episode is over: reward = {}!".format(reward))
+        # if episode_over:
+        #     print("episode is over: reward = {}!".format(reward))
 
         return self.observation, reward, episode_over, {}
 

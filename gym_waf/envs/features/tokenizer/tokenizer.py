@@ -38,6 +38,7 @@ class TokenizerType:
             tks.Comment.Multiline,
             tks.Operator.Logical,
         ]
+        self.vect_size = len(self._allowed_tokens)
 
     def get_allowed_tokens(self):
         """Returns the tokens used for creating the feature vector.
@@ -141,7 +142,7 @@ class TokenizerType:
 class TokenizerTK:
     """ TokenizerTK. Use self-defined tokens. Produce long feature vector (702) on token level. """
     def __init__(self):
-        pass
+        self.vect_size = len(alt.TOKENS)
 
     def produce_feat_vector(self, sql_query: str, normalize=False):
         tokens = self._preprocess_input_query(sql_query)
@@ -175,8 +176,7 @@ class TokenizerTK:
         return tokens
 
     def _histogram_of_tokens(self, tokens):
-        total_length = len(alt.TOKENS)
-        hist = [0 for _ in range(total_length)]
+        hist = [0 for _ in range(self.vect_size)]
         for t in tokens:
             hist[alt.TOKENS.index(t)] = tokens.count(t)
         return hist
@@ -185,7 +185,7 @@ class TokenizerTK:
 class TokenizerChr:
     """ TokenizerChr. Produce character histogram feature vector (256). """
     def __init__(self):
-        pass
+        self.vect_size = 0xff
 
     def produce_feat_vector(self, sql_query: str, normalize=False):
         token_counts = self._histogram_of_chars(sql_query)

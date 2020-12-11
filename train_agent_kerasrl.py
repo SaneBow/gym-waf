@@ -3,12 +3,12 @@ import numpy as np
 import gym
 np.random.seed(123) # set a random seed when setting up the gym environment (train_test_split)
 import gym_waf
+import os
 
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten, ELU, Dropout, BatchNormalization
 from keras.optimizers import Adam, SGD, RMSprop
 
-# pip install keras-rl
 from rl.agents.dqn import DQNAgent
 from rl.agents.sarsa import SarsaAgent
 from rl.policy import BoltzmannQPolicy
@@ -61,7 +61,7 @@ def train_dqn_model(layers, rounds=1000, use_score=False):
     agent.compile(RMSprop(lr=1e-3), metrics=['mae'])
 
     # play the game. learn something!
-    agent.fit(env, nb_steps=rounds, visualize=False, verbose=2)
+    agent.fit(env, nb_steps=rounds, visualize=False, verbose=1)
 
     history_train = env.history
     history_test = None
@@ -70,12 +70,15 @@ def train_dqn_model(layers, rounds=1000, use_score=False):
 
 
 if __name__ == '__main__':
+    save_dir = 'trained_model'
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
     # agent1, model1, history_train1, history_test1 = train_dqn_model([1024, 256, 32], rounds=500, use_score=False)  # black blox
-    # model1.save('models/dqn.h5', overwrite=True)
+    # model1.save('trained_model/dqn.h5', overwrite=True)
     # with open('history_blackbox.pickle', 'wb') as f:
     #     pickle.dump(history_test1, f, pickle.HIGHEST_PROTOCOL)
 
-    agent2, model2, history_train2, history_test2 = train_dqn_model([256, 32], rounds=5000, use_score=False)  # allow agent to see scores
-    # model2.save('models/dqn_score.h5', overwrite=True)
-    # with open('history_score.pickle', 'wb') as f:
-    #     pickle.dump(history_test2, f, pickle.HIGHEST_PROTOCOL)
+    agent2, model2, history_train2, history_test2 = train_dqn_model([512, 256, 32], rounds=10000, use_score=True)  # allow agent to see scores
+    model2.save(os.path.join(save_dir, 'dqn_score.h5'), overwrite=True)
+    with open(os.path.join(save_dir, 'dqn_score_history.pickle'), 'wb') as f:
+        pickle.dump(history_test2, f, pickle.HIGHEST_PROTOCOL)
