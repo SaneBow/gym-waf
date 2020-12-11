@@ -10,7 +10,6 @@ class SqlFeatureExtractor(object):
         tokenizer_chr = TokenizerChr()    # this generates a 256 dimension feature vector
         self.tokenizers = [tokenizer_tk, tokenizer_chr]
         self.shape = (sum([tknz.vect_size for tknz in self.tokenizers]),)
-        print("Feature vector shape:", self.shape)
 
     def extract(self, payload):
         feature_vector = np.array([])

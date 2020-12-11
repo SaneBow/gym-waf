@@ -23,6 +23,7 @@ class WafEnv(gym.Env):
         self.action_space = gym.spaces.Discrete(len(ACTION_LOOKUP))
         self.maxturns = maxturns
         self.feature_extractor = SqlFeatureExtractor()
+        logging.debug("Feature vector shape: {}".format(self.feature_extractor.shape))
         self.history = []
         self.payload_list = None
         self.max_reward = 10.0
@@ -41,6 +42,7 @@ class WafEnv(gym.Env):
         try:
             with open(filepath, 'r') as f:
                 self.payload_list = f.read().splitlines()
+                logging.debug("{} payloads loaded".format(len(self.payload_list)))
         except OSError as e:
             logging.error("failed to load dataset from {}".format(filepath))
             raise
@@ -72,7 +74,7 @@ class WafEnv(gym.Env):
                 self.orig_payload = self.payload = payload
                 break
 
-        # print("reset payload: {}".format(self.payload))
+        logging.debug("reset payload: {}".format(self.payload))
 
         self.observation = self.feature_extractor.extract(self.payload)
 
