@@ -89,9 +89,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PPO2 trainer for gym-waf.')
     parser.add_argument('env_id', metavar='ENV', type=str,
                         help='env id (WafBrain-diff-v0, WafLibinjection-v0')
-    parser.add_argument('-n', dest='num_cpu', default=4,
+    parser.add_argument('-n', dest='num_cpu', type=int, default=4,
                         help='number of parallel processes (default 4)')
-    parser.add_argument('-t', dest='time_steps', default=1e4,
+    parser.add_argument('-t', dest='time_steps', type=float, default=1e4,
                         help='max training time steps (default 1e4)')
     args = parser.parse_args()
 
