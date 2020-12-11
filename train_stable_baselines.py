@@ -8,7 +8,7 @@ import numpy as np
 import argparse
 
 import matplotlib.pyplot as plt
-from stable_baselines.common.policies import MlpPolicy, ActorCriticPolicy, MlpLstmPolicy
+from stable_baselines.common.policies import MlpPolicy, MlpLstmPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
 from stable_baselines.bench import Monitor
 from stable_baselines.common import set_global_seeds
@@ -103,7 +103,8 @@ if __name__ == '__main__':
 
     env = SubprocVecEnv([make_env(env_id, i, log_dir) for i in range(num_cpu)])
 
-    model = PPO2(MlpLstmPolicy, env, verbose=1)
+    model = PPO2(MlpPolicy, env, verbose=1,
+                 nminibatches=64, ent_coef=1e-4, learning_rate=1e-4, n_steps=512, cliprange=0.3)
     # Create the callback: check every 1000 steps
     callback = SaveOnBestTrainingRewardCallback(check_freq=1000, log_dir=log_dir, verbose=1)
     # Train the agent
