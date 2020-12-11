@@ -11,6 +11,12 @@ register(
 )
 
 register(
+    id='WafBrain-diff-v0',
+    entry_point='gym_waf.envs:WafBrainEnv',
+    kwargs={'payloads_file': DATASET, 'maxturns': MAXTURNS, 'score_threshold': 0.1, 'use_diff_reward': True}
+)
+
+register(
     id='WafLibinjection-v0',
     entry_point='gym_waf.envs:LibinjectionEnv',
     kwargs={'payloads_file': DATASET, 'maxturns': MAXTURNS}
