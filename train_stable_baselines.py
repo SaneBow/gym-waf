@@ -110,5 +110,5 @@ if __name__ == '__main__':
     # Train the agent
     model.learn(total_timesteps=int(time_steps), callback=callback)
 
-    results_plotter.plot_results([log_dir], time_steps, results_plotter.X_TIMESTEPS, "PPO2 WAF-Brain")
+    results_plotter.plot_results([log_dir], time_steps, results_plotter.X_TIMESTEPS, "PPO2 {}".format(env_id))
     plt.savefig(os.path.join(log_dir, 'progress.png'))

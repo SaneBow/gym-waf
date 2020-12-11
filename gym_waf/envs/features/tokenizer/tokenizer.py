@@ -197,6 +197,7 @@ class TokenizerChr:
 
     def _histogram_of_chars(self, s):
         hist = [0 for _ in range(0xff)]
-        for c in s:
-            hist[ord(c)] = s.count(c)
+        sb = s.encode()
+        for c in sb:
+            hist[c] = sb.count(c)
         return hist
