@@ -93,11 +93,18 @@ if __name__ == '__main__':
                         help='number of parallel processes (default 4)')
     parser.add_argument('-t', dest='time_steps', type=float, default=1e4,
                         help='max training time steps (default 1e4)')
+    parser.add_argument('-d', dest='debug', action='store_true',
+                        help='turn on debug log')
     args = parser.parse_args()
 
     env_id = args.env_id
     num_cpu = args.num_cpu  # Number of processes to use
     time_steps = args.time_steps
+    debug = args.debug
+
+    if debug:
+        import logging
+        logging.basicConfig(level=logging.DEBUG)
 
     log_dir = utils.prepare_logdir()
 

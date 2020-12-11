@@ -50,8 +50,8 @@ if __name__ == '__main__':
                         help='env id (WafBrain-diff-v0, WafLibinjection-v0')
     parser.add_argument('agent', metavar='AGENT', type=str,
                         help='agent type (ppo, dqn, random)')
-    parser.add_argument('model_file', metavar='FILE', type=str,
-                        help='file path to load model')
+    parser.add_argument('-m', dest='model_file', metavar='FILE', type=str,
+                        help='file path to load model (required except random agent)')
     parser.add_argument('-i', dest='eval_cnt', type=int, default=100,
                         help='number of episodes to evaluate (default 100)')
     args = parser.parse_args()
@@ -60,6 +60,9 @@ if __name__ == '__main__':
     agent = args.agent
     model_file = args.model_file
     eval_cnt = args.eval_cnt
+
+    if agent != 'random' and model_file is None:
+        parser.print_help()
 
     env = gym.make(env_name)
 
