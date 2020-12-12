@@ -14,7 +14,7 @@ from stable_baselines.common import set_global_seeds
 from stable_baselines import PPO2
 from stable_baselines.common.callbacks import BaseCallback
 from stable_baselines import results_plotter
-from stable_baselines.results_plotter import load_results, ts2xy
+from stable_baselines.results_plotter import load_results, ts2xy, rolling_window
 
 
 def make_env(env_id, rank, log_dir, seed=0):
@@ -94,6 +94,12 @@ if __name__ == '__main__':
                         help='max training time steps (default 1e4)')
     parser.add_argument('--lr', dest='learning_rate', type=float, default=1e-4,
                         help='learning rate (default 1e-4)')
+    parser.add_argument('--entropy', dest='entropy_coeff', type=float, default=1e-4,
+                        help='entropy coefficient (default 1e-4)')
+    parser.add_argument('--batchsize', dest='batch_size', type=int, default=64,
+                        help='batch size (default 64)')
+    parser.add_argument('--clip', dest='clip_range', type=float, default=0.3,
+                        help='clip range (default 0.3)')
     parser.add_argument('-d', dest='debug', action='store_true',
                         help='turn on debug log')
     args = parser.parse_args()
@@ -109,14 +115,22 @@ if __name__ == '__main__':
 
     log_dir = utils.prepare_logdir()
 
-    env = SubprocVecEnv([make_env(env_id, i, log_dir) for i in range(num_cpu)])
+    if num_cpu > 1:
+        env = SubprocVecEnv([make_env(env_id, i, log_dir) for i in range(num_cpu)])
+    else:
+        env = gym.make(env_id)
+        env = utils.Monitor(env, log_dir)
 
     model = PPO2(MlpPolicy, env, verbose=1,
-                 nminibatches=64, ent_coef=1e-4, learning_rate=args.learning_rate, n_steps=512, cliprange=0.3)
+                 nminibatches=args.batch_size, ent_coef=args.entropy_coeff, learning_rate=args.learning_rate,
+                 n_steps=512, cliprange=args.clip_range)
     # Create the callback: check every 1000 steps
     callback = SaveOnBestTrainingRewardCallback(check_freq=1000, log_dir=log_dir, verbose=1)
     # Train the agent
     model.learn(total_timesteps=int(time_steps), callback=callback)
 
-    results_plotter.plot_results([log_dir], time_steps, results_plotter.X_TIMESTEPS, "PPO2 {}".format(env_id))
+    window = 1000
+    x, y = ts2xy(load_results(log_dir), 'timesteps')
+    ym = rolling_window(y, window).mean(axis=1)
+    results_plotter.plot_curves([(x[window-1:], ym)], results_plotter.X_TIMESTEPS, "PPO2 {}".format(env_id))
     plt.savefig(os.path.join(log_dir, 'progress.png'))

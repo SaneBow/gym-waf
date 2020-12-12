@@ -107,3 +107,4 @@ gym_malware/envs/utils/samples_all/
 *.h5f
 
 results/
+*.ipynb
