@@ -10,7 +10,6 @@ import argparse
 import matplotlib.pyplot as plt
 from stable_baselines.common.policies import MlpPolicy, MlpLstmPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
-from stable_baselines.bench import Monitor
 from stable_baselines.common import set_global_seeds
 from stable_baselines import PPO2
 from stable_baselines.common.callbacks import BaseCallback
@@ -33,7 +32,7 @@ def make_env(env_id, rank, log_dir, seed=0):
         env = gym.make(env_id)
         env.seed(seed + rank)
         log_file = os.path.join(log_dir, str(rank))
-        return Monitor(env, log_file)
+        return utils.Monitor(env, log_file)
     set_global_seeds(seed)
     return _init
 
@@ -93,6 +92,8 @@ if __name__ == '__main__':
                         help='number of parallel processes (default 4)')
     parser.add_argument('-t', dest='time_steps', type=float, default=1e4,
                         help='max training time steps (default 1e4)')
+    parser.add_argument('--lr', dest='learning_rate', type=float, default=1e-4,
+                        help='learning rate (default 1e-4)')
     parser.add_argument('-d', dest='debug', action='store_true',
                         help='turn on debug log')
     args = parser.parse_args()
@@ -111,7 +112,7 @@ if __name__ == '__main__':
     env = SubprocVecEnv([make_env(env_id, i, log_dir) for i in range(num_cpu)])
 
     model = PPO2(MlpPolicy, env, verbose=1,
-                 nminibatches=64, ent_coef=1e-4, learning_rate=1e-4, n_steps=512, cliprange=0.3)
+                 nminibatches=64, ent_coef=1e-4, learning_rate=args.learning_rate, n_steps=512, cliprange=0.3)
     # Create the callback: check every 1000 steps
     callback = SaveOnBestTrainingRewardCallback(check_freq=1000, log_dir=log_dir, verbose=1)
     # Train the agent
