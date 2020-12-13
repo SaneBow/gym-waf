@@ -1,9 +1,14 @@
-# WAF Evasion Environment for OpenAI Gym
+# WAF Evasion Environment for OpenAI Gym [Experimental] 
 **************************
 
-### Available environments
-- `WafBrain-v0`: WafBrain (ML-based, score available) evasion with 1k SQL payloads
-- `WafLibinj-v0`: Libinjection (rule-based, only label) evasion with 1k SQL payloads
+![MDP](docs/WAFEvasionRL_MDP.png)
+
+### Installation
+`pip install gym-waf`
+
+### Currently available environments
+- `WafBrain-v0`: WafBrain (ML-based, scores available) evasion with 1k SQL payloads
+- `WafLibinj-v0`: Libinjection (rule-based, only labels) evasion with 1k SQL payloads
 - `WafBrain-single-v0`: WafBrain evasion with single payload
 - `WafLibinj-single-v0`: Libinjection evasion with single payload
 
