@@ -40,7 +40,7 @@ class WafEnv(gym.Env):
 
     def _load_payloads(self, filepath):
         try:
-            with open(filepath, 'r') as f:
+            with open(filepath, 'rb') as f:
                 self.payload_list = f.read().splitlines()
                 logging.debug("{} payloads loaded".format(len(self.payload_list)))
         except OSError as e:
